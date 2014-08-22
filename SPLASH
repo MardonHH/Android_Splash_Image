@@ -1,0 +1,74 @@
+#!/system/bin/sh
+
+################################
+
+# This script requires Busybox,
+# nbimg, and GraphicsMagick (gm)
+
+################################
+
+# SPLASH IMAGE CONVERTER
+# Written by Modding.MyMind - XDA
+
+################################
+
+# Set your image directory here
+# If input is invalid then loop back to the function until they get it right.
+DIRECTORY() {
+	clear; echo "Enter directory to the image's, ex. /sdcard/convert2splash:"
+	read PORT_IMAGES
+		# Check to see if directory exists
+		if [ -d "${PORT_IMAGES}" ] ; then
+ 			PORT_SPLASH=$(echo "${PORT_IMAGES}")
+		else
+			echo " "
+			echo ""${PORT_IMAGES}" is not a directory"
+			echo " "
+			echo "Press ANY key when ready..."
+			read -n1 any_key
+			clear; DIRECTORY
+		fi
+}
+
+# Set your width and height here
+# If input is invalid then loop back to the function until they get it right.
+BASE_DEVICE() {
+	clear; echo "Enter your resolution, ex. 480x800:"
+	read BASE_RESOLUTION
+	B_RES_W=$(echo "$BASE_RESOLUTION" | egrep -o '[0-9]+x' | egrep -o '[0-9]+')
+	B_RES_H=$(echo "$BASE_RESOLUTION" | egrep -o 'x[0-9]+' | egrep -o '[0-9]+')
+	BASE_RESOLUTION_CHECK=$(echo "$B_RES_W"'x'"$B_RES_H")
+		if [ "$BASE_RESOLUTION" == "$BASE_RESOLUTION_CHECK" ] ; then
+ 			# Your Resolution
+ 			WIDTH=$(echo "$B_RES_W")
+ 			HEIGHT=$(echo "$B_RES_H")
+		else
+			echo " "
+			echo "Please input correct layout for your resolution."
+			echo "An example would be, 480x800."
+			echo " "
+			echo "Press ANY key when ready..."
+			read -n1 any_key
+			clear; BASE_DEVICE
+		fi
+}
+
+# CALL FUNCTIONS HERE
+DIRECTORY
+BASE_DEVICE
+
+##############################
+
+# Find the images to be converted to splash
+clear; find "${PORT_IMAGES}" -type f -iname "*.*" | while read line; do
+		# Remember the directory and filename to each image
+		local FILE=$(basename "${line}")
+		local FILEDIR=$(dirname "${line}")
+		gm convert "${FILEDIR}"/"${FILE}" -resize $WIDTH'x'$HEIGHT'!' "${FILEDIR}"/"${FILE}"
+		gm convert "${FILEDIR}"/"${FILE}" "${FILEDIR}"/"${FILE}"'.bmp'
+		echo " "
+		nbimg -F "${FILEDIR}"/"${FILE}"'.bmp' -w $WIDTH -h $HEIGHT
+		FILE_NAME=`echo "${FILE}" | cut -d. -f1 `
+		busybox mv -f "${FILEDIR}"/"${FILE}"'.bmp.nb' "${FILEDIR}"/"${FILE_NAME}"'.img'
+		rm -f "${FILEDIR}"/"${FILE}"'.bmp';
+done
