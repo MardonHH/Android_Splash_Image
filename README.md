@@ -5,9 +5,9 @@ Written and Compiled by:
 ModdingMyMind - AF
 Modding.MyMind - XDA
 
-Requires NBIMG, BUSYBOX, and GM (GraphicsMagick)!
+Requires to565, NBIMG, BUSYBOX, and GM (GraphicsMagick)!
 
-to565, NBIMG and GM are both included in this repo. They have have been statically compiled for ARM to work with PRE-JB devices as well as being in compliance with Android L (latest release).
+to565, NBIMG and GM are included in this repo. They have have been statically compiled for ARM to work with PRE-JB devices as well as being in compliance with Android L (latest release).
 
 * Clone, or download Repo
 * Place binaries and script to /system/bin on your Android device
