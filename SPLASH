@@ -59,7 +59,7 @@ BASE_DEVICE
 
 ##############################
 
-Standard() {
+STANDARD() {
 CHECKGM=$(command -v gm)
 if [ ! $CHECKGM ]
 then
