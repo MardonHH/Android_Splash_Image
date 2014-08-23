@@ -3,7 +3,7 @@
 ################################
 
 # This script requires Busybox,
-# nbimg, and GraphicsMagick (gm)
+# nbimg, to565 and GraphicsMagick (gm)
 
 ################################
 
