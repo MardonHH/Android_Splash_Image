@@ -8,7 +8,7 @@
 ################################
 
 # SPLASH IMAGE CONVERTER
-# Written by Modding.MyMind - XDA
+# Written by Modding.MyMind - XDA & ModdingMyMind - AF
 
 ################################
 
@@ -59,7 +59,35 @@ BASE_DEVICE
 
 ##############################
 
-# Find the images to be converted to splash
+Standard() {
+CHECKGM=$(command -v gm)
+if [ ! $CHECKGM ]
+then
+	echo " GraphicsMagick (gm) is not present in your system"
+	echo " This script won't run without it"
+	read
+	exit
+fi
+
+CHECKBUSYBOX=$(command -v busybox)
+if [ ! $CHECKBUSYBOX ]
+then
+	echo " Busybox is not present in your system"
+	echo " This script won't run without it"
+	read
+	exit
+fi
+
+CHECKNBIMG=$(command -v nbimg)
+if [ ! $CHECKNBIMG ]
+then
+	echo " NBIMG is not present in your system"
+	echo " This script won't run without it"
+	read
+	exit
+fi
+
+# Find the images to be converted to splash image format
 clear; find "${PORT_IMAGES}" -type f -iname "*.*" | while read line; do
 		# Remember the directory and filename to each image
 		local FILE=$(basename "${line}")
@@ -72,3 +100,64 @@ clear; find "${PORT_IMAGES}" -type f -iname "*.*" | while read line; do
 		busybox mv -f "${FILEDIR}"/"${FILE}"'.bmp.nb' "${FILEDIR}"/"${FILE_NAME}"'.img'
 		rm -f "${FILEDIR}"/"${FILE}"'.bmp';
 done
+}
+
+NONSTANDARD() {
+CHECKGM=$(command -v gm)
+if [ ! $CHECKGM ]
+then
+	echo " GraphicsMagick (gm) is not present in your system"
+	echo " This script won't run without it"
+	read
+	exit
+fi
+
+CHECKBUSYBOX=$(command -v busybox)
+if [ ! $CHECKBUSYBOX ]
+then
+	echo " Busybox is not present in your system"
+	echo " This script won't run without it"
+	read
+	exit
+fi
+
+CHECKTO565=$(command -v to565)
+if [ ! $CHECKTO565 ]
+then
+	echo " to565 is not present in your system"
+	echo " This script won't run without it"
+	read
+	exit
+fi
+
+# Find the images to be converted to splash rle format
+clear; find "${PORT_IMAGES}" -type f -iname "*.*" | while read line; do
+		# Remember the directory and filename to each image
+		local FILE=$(basename "${line}")
+		local FILEDIR=$(dirname "${line}")
+		busybox cp -f "${FILEDIR}"/"${FILE}" "${FILEDIR}"/"${FILE}"'.backup'
+		gm convert -depth 8 -resize $WIDTH'x'$HEIGHT'!' "${FILEDIR}"/"${FILE}" rgb:"${FILEDIR}"/"${FILE}"
+		echo " "
+		echo "Converting "${FILE}" to rle"
+		FILE_NAME=`echo "${FILE}" | cut -d. -f1 `
+		busybox mv -f "${FILEDIR}"/"${FILE}" "${FILEDIR}"/"${FILE_NAME}"'.raw'
+		to565 -rle < "${FILEDIR}"/"${FILE_NAME}"'.raw' > "${FILEDIR}"/"${FILE_NAME}"'.rle'
+		rm -f "${FILEDIR}"/"${FILE_NAME}"'.raw'
+		busybox mv -f "${FILEDIR}"/"${FILE}"'.backup' "${FILEDIR}"/"${FILE}"
+		gm convert "${FILEDIR}"/"${FILE}" -resize $WIDTH'x'$HEIGHT'!' "${FILEDIR}"/"${FILE}";
+done
+}
+
+clear; echo "Splash Image Converter - 1.0"
+echo " "
+echo "Please Choose Your Option:"
+echo "1 - Spash Image .img format"
+echo "2 - Splash Image .rle format"
+echo "Q/q - Exit Script"
+read OPT
+case $OPT in
+	1) STANDARD ;;
+	2) NONSTANDARD ;;
+	Q) clear; echo "Goodbye"; read; exit;;
+	q) clear; echo "Goodbye"; read; exit;;
+esac
